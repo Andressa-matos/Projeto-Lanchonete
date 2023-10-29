@@ -5,6 +5,18 @@ import tkinter as tk
 from tkinter import ttk
 import sqlite3
 
+################ cores ###############
+co0 = "#f0f3f5"  # Preta
+co1 = "#feffff"  # branca
+co2 = "#4fa882"  # verde
+co3 = "#38576b"  # valor
+co4 = "#403d3d"   # letra
+co5 = "#e06636"   # - profit
+co6 = "#038cfc"   # azul
+co7 = "#ef5350"   # vermelha
+co8 = "#263238"   # + verde
+co9 = "#e9edf5"   # sky blue
+
 def registrar_Cadastro(name, usuario, password):
     # Pegar informações para o Banco
     NameBanco = name
@@ -75,6 +87,8 @@ def acessando_Login():
             menuContatos.add_command(label="Sair", command=exit)
             barraDeMenus.add_cascade(label="Menu", menu=menuContatos)
             app.config(menu=barraDeMenus)
+           
+
 
 
     except:
@@ -86,11 +100,12 @@ def acessando_Login():
 def fazer_pedido():
                 root = Tk()
                 root.title("Pedidos")
-                root.geometry("300x300+100+100")
-                root.geometry("1100x600")
+                root.geometry("1300x600")
                 my_tree = ttk.Treeview(root)
-                root.configure(bg="#F0F0F0")
+                root.configure(bg="#0b2e3b")
                 storeName = "Cadastre seus pedidos"
+               
+                # funções
 
                 # Create a connection to the database
                 conn = sqlite3.connect("pedido.db")
@@ -168,122 +183,17 @@ def fazer_pedido():
                             entryquantidade.delete(0, END)
                             display_data()
 
-                def on_treeview_double_click(event):
-                    selected_item = my_tree.focus()  # Obter o item selecionado
-                    values = my_tree.item(selected_item, "values")  # Obter os valores da linha selecionada
-
-                    # Preencher as caixas de texto com os valores da linha selecionada
-                    entryNome.delete(0, END)
-                    entryNome.insert(0, values[1])  # Nome
-                    entryvalor.delete(0, END)
-                    entryvalor.insert(0, values[2])  # Valor
-                    entryforma.delete(0, END)
-                    entryforma.insert(0, values[3])  # Forma de pagamento
-                    entrypedido.delete(0, END)
-                    entrypedido.insert(0, values[4])  # Pedido
-                    entryquantidade.delete(0, END)
-                    entryquantidade.insert(0, values[5])  # Quantidade
-
-                my_tree.bind("<Double-1>", on_treeview_double_click)  # Vincular o evento de clique duplo ao Treeview
-                
-                def cozinha():
-                    def mark_order_ready(event):
-                            selected_item = my_tree.focus()
-                            my_tree.item(selected_item, values=("Pronto",))
-                            coz.event_generate("<<PedidoPronto>>", when="tail")  # Acionar evento de pedido pronto
-                        
-                    def on_pedido_pronto(event):
-                            messagebox.showinfo("Pedido Pronto", "Um pedido está pronto para entrega!")
-                        
-                    def update_orders():
-                            # Aqui você pode adicionar a lógica para verificar se há novos pedidos
-                            # e atualizar a tabela da cozinha em conformidade
-                            display_data()
-                            coz.after(5000, update_orders)  # Atualiza a cada 5 segundos (5000 ms)
-
-                    coz = tk.Tk()
-                    coz.title("Tela da Cozinha")
-
-                    # Criar Treeview
-                    my_tree = ttk.Treeview(coz)
-                    my_tree['columns'] = ("ID", "Nome", "Valor", "Forma de pg", "Pedido", "Quantidade")
-                    my_tree.column("#0", width=0, stretch=tk.NO)
-                    my_tree.column("ID", anchor=tk.W, width=100)
-                    my_tree.column("Nome", anchor=tk.W, width=150)
-                    my_tree.column("Valor", anchor=tk.W, width=150)
-                    my_tree.column("Forma de pg", anchor=tk.W, width=150)
-                    my_tree.column("Pedido", anchor=tk.W, width=150)
-                    my_tree.column("Quantidade", anchor=tk.W, width=150)
-                    
-                    my_tree.heading("ID", text="ID", anchor=tk.W)
-                    my_tree.heading("Nome", text="Nome", anchor=tk.W)
-                    my_tree.heading("Valor", text="Valor", anchor=tk.W)
-                    my_tree.heading("Forma de pg", text="Forma de pg", anchor=tk.W)
-                    my_tree.heading("Pedido", text="Pedido", anchor=tk.W)
-                    my_tree.heading("Quantidade", text="Quantidade", anchor=tk.W)
-
-                    # Adicionar dados à tabela
-                    def display_data():
-                        for data in my_tree.get_children():
-                            my_tree.delete(data)
-
-                        results = reverse(read())
-
-                        for result in results:
-                            my_tree.insert(parent='', index='end', iid=result[0], text="", values=result, tag="orow")
-
-                        my_tree.tag_configure('orow', background='#EEEEEE')
-                        my_tree.grid(row=1, column=5, columnspan=4, rowspan=5, padx=10, pady=10)
-
-                    display_data()
-                    
-                    # Configurar evento de duplo clique para marcar pedido como pronto
-                    my_tree.bind("<Double-1>", mark_order_ready)
-                    coz.bind("<<PedidoPronto>>", on_pedido_pronto)
-                    coz.after(5000, update_orders)
-                    coz.mainloop()
-
-                def imprimir_nota_fiscal():
-                       # Obter itens selecionados na Treeview
-                    selecionados = my_tree.selection()
-
-                    if len(selecionados) == 0:
-                        messagebox.showinfo("Atenção", "Nenhum item selecionado.")
-                        return
-
-                    # Obter o nome do cliente
-                    nome_cliente = entryNome.get()
-
-                    if not nome_cliente:
-                        messagebox.showinfo("Atenção", "Digite o nome do cliente.")
-                        return
-
-                    # Nome do arquivo de nota fiscal
-                    nome_arquivo = f"Notas Fiscais/{nome_cliente}_nota_fiscal.txt"
-
-                    try:
-                        with open(nome_arquivo, 'w') as arquivo:
-                            for item_id in selecionados:
-                                # Obter valores das colunas para o item selecionado
-                                valores = my_tree.item(item_id)['values']
-                                linha = f"ID: {valores[0]}\nNome: {valores[1]}\nValor: {valores[2]}\nForma de pg: {valores[3]}\nPedido: {valores[4]}\nQuantidade: {valores[5]}\n\n"
-                                arquivo.write(linha)
-
-                        messagebox.showinfo("Sucesso", f"Nota fiscal salva em '{nome_arquivo}'.")
-                    except IOError:
-                        messagebox.showerror("Erro", "Ocorreu um erro ao criar o arquivo.")
-
-                    
+           
                 # estrutura
 
-                titleLabel = Label(root, text=storeName, font=('Arial bold', 30), bd=2, foreground='#F2044E', bg='#F0F0F0')
+                titleLabel = Label(root, text=storeName, font=('Arial bold', 30), bd=2, foreground='white', bg='#0b2e3b')
                 titleLabel.grid(row=0, column=1, columnspan=8, padx=20, pady=20)
 
-                NomeLabel = Label(root, text="Nome", font=('Arial bold', 15), foreground='#F2044E', bg='#F0F0F0')
-                valorLabel = Label(root, text="Valor", font=('Arial bold', 15), foreground='#F2044E', bg='#F0F0F0')
-                formaLabel = Label(root, text="Forma de pg", font=('Arial bold', 15), foreground='#F2044E', bg='#F0F0F0')
-                pedidoLabel = Label(root, text="Pedido", font=('Arial bold', 15), foreground='#F2044E', bg='#F0F0F0')
-                quantidadeLabel = Label(root, text="Quantidade", font=('Arial bold', 15), foreground='#F2044E', bg='#F0F0F0')
+                NomeLabel = Label(root, text="Nome", font=('Arial bold', 15), foreground='white', bg='#0b2e3b')
+                valorLabel = Label(root, text="Valor", font=('Arial bold', 15), foreground='white', bg='#0b2e3b')
+                formaLabel = Label(root, text="Forma de pg", font=('Arial bold', 15), foreground='white', bg='#0b2e3b')
+                pedidoLabel = Label(root, text="Pedido", font=('Arial bold', 15), foreground='white', bg='#0b2e3b')
+                quantidadeLabel = Label(root, text="Quantidade", font=('Arial bold', 15), foreground='white', bg='#0b2e3b')
            
                 NomeLabel.grid(row=1, column=0, padx=10, pady=10)
                 valorLabel.grid(row=2, column=0, padx=10, pady=10)
@@ -304,56 +214,45 @@ def fazer_pedido():
                 entryquantidade.grid(row=5, column=1, columnspan=3, padx=5, pady=5)
 
                 buttonEnter = Button(
-                    root, text="Enter", padx=5, pady=5, width=6,
-                    font=('Arial', 15), foreground='white', bg="#F2044E", command=insert_data)
+                    root, text="Enter", padx=5, pady=5, width=5,
+                    bd=3, font=('Arial', 15),foreground='white', bg="#32CD32", command=insert_data)
                 buttonEnter.grid(row=7, column=1, columnspan=1)
 
                 buttonUpdate = Button(
-                    root, text="Atualizar", padx=5, pady=5, width=6,
-                    font=('Arial', 15),foreground='white', bg="#F2044E", command=update_data)
+                    root, text="Update", padx=5, pady=5, width=5,
+                    bd=3, font=('Arial', 15),foreground='white', bg="#FFD700", command=update_data)
                 buttonUpdate.grid(row=7, column=2, columnspan=1)
 
                 buttonDelete = Button(
-                    root, text="Delete", padx=5, pady=5, width=6,
-                    font=('Arial', 15),foreground='white', bg="#F2044E", command=delete_data)
+                    root, text="Delete", padx=5, pady=5, width=5,
+                    bd=3, font=('Arial', 15),foreground='white', bg="#FF0000", command=delete_data)
                 buttonDelete.grid(row=7, column=3, columnspan=1)
 
                 buttonVoltar = Button(
-                    root, text="Voltar", padx=5, pady=5, width=6,
-                    font=('Arial', 15),foreground='white', bg="#F2044E", command= root.destroy)
+                    root, text="Voltar", padx=5, pady=5, width=5,
+                    bd=3, font=('Arial', 15),foreground='white', bg="#FF0000", command=acessando_Login)
                 buttonVoltar.grid(row=8, column=1, columnspan=1)
 
-                buttonImprimir = Button(
-                    root, text="Imprimir", padx=5, pady=5, width=6,
-                    font=('Arial', 15),foreground='white', bg="#F2044E", command=imprimir_nota_fiscal)
-                buttonImprimir.grid(row=8, column=2, columnspan=1)
-
-                buttonCozinha = Button(
-                    root, text="Cozinha", padx=5, pady=5, width=6,
-                    font=('Arial', 15),foreground='white', bg="#F2044E", command=cozinha)
-                buttonCozinha.grid(row=8, column=3, columnspan=1)
-
+           
                 style = ttk.Style()
                 style.configure("Treeview.Heading", font=('Arial bold', 15))
 
                 my_tree['columns'] = ("ID", "Nome", "Valor", "Forma de pg", "Pedido", "Quantidade")
-                my_tree.column("#0", width=0, stretch=tk.NO)
-                my_tree.column("ID", anchor=tk.W, width=100)
-                my_tree.column("Nome", anchor=tk.W, width=150)
-                my_tree.column("Valor", anchor=tk.W, width=100)
-                my_tree.column("Forma de pg", anchor=tk.W, width=100)
-                my_tree.column("Pedido", anchor=tk.W, width=100)
-                my_tree.column("Quantidade", anchor=tk.W, width=100)
+                my_tree.column("#0", width=0, stretch=NO)
+                my_tree.column("ID", anchor=W, width=100)
+                my_tree.column("Nome", anchor=W, width=150)
+                my_tree.column("Valor", anchor=W, width=150)
+                my_tree.column("Forma de pg", anchor=W, width=150)
+                my_tree.column("Pedido", anchor=W, width=150)
+                my_tree.column("Quantidade", anchor=W, width=150)
 
-                my_tree.heading("ID", text="ID", anchor=tk.W)
-                my_tree.heading("Nome", text="Nome", anchor=tk.W)
-                my_tree.heading("Valor", text="Valor", anchor=tk.W)
-                my_tree.heading("Forma de pg", text="Forma de pg", anchor=tk.W)
-                my_tree.heading("Pedido", text="Pedido", anchor=tk.W)
-                my_tree.heading("Quantidade", text="Quantidade", anchor=tk.W)
+                my_tree.heading("ID", text="ID", anchor=W)
+                my_tree.heading("Nome", text="Nome", anchor=W)
+                my_tree.heading("Valor", text="Valor", anchor=W)
+                my_tree.heading("Forma de pg", text="Forma de pg", anchor=W)
+                my_tree.heading("Pedido", text="Pedido", anchor=W)
+                my_tree.heading("Quantidade", text="Quantidade", anchor=W)
 
-
-                # Função para exibir dados no Treeview
                 def display_data():
                     for data in my_tree.get_children():
                         my_tree.delete(data)
@@ -369,6 +268,7 @@ def fazer_pedido():
                 display_data()
                 root.mainloop()
 
+                  #~~ Criação do menu~~
 
  
 def cadastrarUsers():
@@ -381,37 +281,40 @@ def cadastrarUsers():
 
                 # TELA DE CADASTRO
                 cad = Tk()
-                corDeFundo= '#F0F0F0'
+                corDeFundo= '#0b2e3b'
                 cad.title('cadastro')
                 cad["bg"] = corDeFundo
                 cad.geometry("300x300+100+100")
                 cad.geometry("600x420")  
                 cad.resizable(width=False, height=False)
-                # Carrega a imagem
 
+                imagem = tk.PhotoImage(file="cadastro.png")
+                w = tk.Label(login, image=imagem, width=700, height=400)
+                w.imagem = imagem
+                w.pack()
 
-                title = Label(cad, text='Cadastro', bg=corDeFundo, foreground='#F2044E', font=20)
+                title = Label(cad, text='Cadastro', bg=corDeFundo, foreground='white', font=20)
                 title.pack(side=TOP, fill=X)
 
-                name = Label(cad, text='Nome:', bg=corDeFundo, foreground='#F2044E')
-                name.place(x=180, y=80)
+                name = Label(cad, text='Nome:', bg=corDeFundo, foreground='white')
+                name.place(x=46, y=50)
                 nameF = Entry(cad)
-                nameF.place(x=240, y=80)
+                nameF.place(x=90, y=90)
 
-                Usuario = Label(cad, text='Usuario:', bg=corDeFundo, foreground='#F2044E')
-                Usuario.place(x=180, y=130)
+                Usuario = Label(cad, text='Usuario:', bg=corDeFundo, foreground='white')
+                Usuario.place(x=36, y=90)
                 UsuarioF = Entry(cad)
-                UsuarioF.place(x=240, y=130)
+                UsuarioF.place(x=90, y=50)
 
-                password = Label(cad, text='Senha:', bg=corDeFundo, foreground='#F2044E')
-                password.place(x=180, y=180)
+                password = Label(cad, text='Senha:', bg=corDeFundo, foreground='white')
+                password.place(x=44, y=130)
                 passwordF = Entry(cad, show="•")
-                passwordF.place(x=240, y=180)
+                passwordF.place(x=90, y=130)
 
-                enter = Button(cad, width='11', text='Cadastrar', bg='#F2044E', command=registrar)
-                enter.place(x=260, y=250)
-                enter = Button(cad, width='11', text='Voltar', bg='#F2044E', command=cad.destroy)
-                enter.place(x=260, y=300)
+                enter = Button(cad, width='11', text='Cadastrar', command=registrar)
+                enter.place(x=115, y=180)
+                enter = Button(cad, width='11', text='Voltar', command=cad.destroy)
+                enter.place(x=115, y=220)
 
                 cad.mainloop()
                  
@@ -434,16 +337,18 @@ w.pack()
 userF = Entry(login, width=18, bd='3', font=('Arial bold', 15))
 userF.place(x=297, y=160)
 
-passwordF = Entry(login, width=18, bd='3', show="•", font=('Arial bold', 15))
+passwordF = Entry(login, width=18, bd='3', font=('Arial bold', 15))
 passwordF.place(x=297, y=220)
 
 # Create a PhotoImage object with the image file
-imgRedondo = PhotoImage(file='bnt_login.png')
+imgRedondo = PhotoImage(file='ENTRAR.png')
 
 # Create a Button with the image
 btnRedondo = Button(login, image=imgRedondo, bd=0, relief="flat", highlightthickness=0, command=acessando_Login)
 btnRedondo.place(x=358, y=328)
 
+#enter = ttk.Button(login, width='10', text='ENTRAR', style='Custom.TButton', command=acessando_Login)
+#enter.place(x=365, y=300)
 
 
 login.mainloop()
